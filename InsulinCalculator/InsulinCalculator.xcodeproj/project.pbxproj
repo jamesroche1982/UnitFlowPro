@@ -23,6 +23,10 @@
 		A014 /* MealPresetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* MealPresetsView.swift */; };
 		A015 /* TimeSchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F015 /* TimeSchedulesView.swift */; };
 		A016 /* HistoryChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016 /* HistoryChartView.swift */; };
+		A017 /* BGTrend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F018 /* BGTrend.swift */; };
+		A018 /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F019 /* Statistics.swift */; };
+		A019 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F020 /* StatsView.swift */; };
+		A020 /* PDFReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F021 /* PDFReportView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +47,10 @@
 		F015 /* TimeSchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeSchedulesView.swift; sourceTree = "<group>"; };
 		F016 /* HistoryChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryChartView.swift; sourceTree = "<group>"; };
 		F017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F018 /* BGTrend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTrend.swift; sourceTree = "<group>"; };
+		F019 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
+		F020 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		F021 /* PDFReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReportView.swift; sourceTree = "<group>"; };
 		PROD1 /* InsulinCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InsulinCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -96,6 +104,8 @@
 				F014 /* MealPresetsView.swift */,
 				F015 /* TimeSchedulesView.swift */,
 				F016 /* HistoryChartView.swift */,
+				F020 /* StatsView.swift */,
+				F021 /* PDFReportView.swift */,
 			);
 			name = Views;
 			path = Views;
@@ -110,6 +120,8 @@
 				F011 /* IOBCalculator.swift */,
 				F012 /* TimeSchedule.swift */,
 				F013 /* MealPreset.swift */,
+				F018 /* BGTrend.swift */,
+				F019 /* Statistics.swift */,
 			);
 			name = Models;
 			path = Models;
@@ -199,6 +211,10 @@
 				A014 /* MealPresetsView.swift in Sources */,
 				A015 /* TimeSchedulesView.swift in Sources */,
 				A016 /* HistoryChartView.swift in Sources */,
+				A017 /* BGTrend.swift in Sources */,
+				A018 /* Statistics.swift in Sources */,
+				A019 /* StatsView.swift in Sources */,
+				A020 /* PDFReportView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,10 +1,17 @@
 import SwiftUI
 
+enum HistoryTab { case list, chart, stats }
+
 struct HistoryView: View {
     @ObservedObject var historyStore: DoseHistoryStore
-    @State private var showChart = false
+    let glucoseUnit: GlucoseUnit
+
+    @State private var tab: HistoryTab = .list
     @State private var showExport = false
-    @State private var exportText = ""
+    @State private var exportItem: Any?
+    @State private var pdfDays = 14
+
+    private var stats: GlucoseStats { GlucoseStats(entries: historyStore.entries, unit: glucoseUnit) }
 
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short; return f
@@ -16,66 +23,98 @@ struct HistoryView: View {
                 if historyStore.entries.isEmpty {
                     ContentUnavailableView("No History", systemImage: "clock.badge.xmark",
                         description: Text("Calculated doses will appear here."))
-                } else if showChart {
-                    HistoryChartView(entries: historyStore.entries)
                 } else {
-                    List {
-                        ForEach(historyStore.entries) { entry in
-                            HistoryRow(entry: entry, dateFormatter: dateFormatter)
-                        }
-                        .onDelete(perform: historyStore.delete)
+                    switch tab {
+                    case .list:  listView
+                    case .chart: HistoryChartView(entries: historyStore.entries)
+                    case .stats: StatsView(stats: stats)
                     }
                 }
             }
-            .navigationTitle("Dose History")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    if !historyStore.entries.isEmpty {
-                        Button {
-                            withAnimation { showChart.toggle() }
-                        } label: {
-                            Image(systemName: showChart ? "list.bullet" : "chart.line.uptrend.xyaxis")
-                        }
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack {
-                        if !historyStore.entries.isEmpty {
-                            Button {
-                                exportText = generateCSV()
-                                showExport = true
-                            } label: {
-                                Image(systemName: "square.and.arrow.up")
-                            }
-                            if !showChart { EditButton() }
-                        }
-                    }
-                }
+            .navigationTitle("History")
+            .toolbar { toolbarContent }
+        }
+    }
+
+    // MARK: - List
+
+    private var listView: some View {
+        List {
+            ForEach(historyStore.entries) { entry in
+                HistoryRow(entry: entry, dateFormatter: dateFormatter)
             }
-            .sheet(isPresented: $showExport) {
-                ShareSheet(activityItems: [exportText])
-                    .presentationDetents([.medium, .large])
+            .onDelete(perform: historyStore.delete)
+        }
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            if !historyStore.entries.isEmpty {
+                Picker("View", selection: $tab) {
+                    Image(systemName: "list.bullet").tag(HistoryTab.list)
+                    Image(systemName: "chart.line.uptrend.xyaxis").tag(HistoryTab.chart)
+                    Image(systemName: "chart.pie").tag(HistoryTab.stats)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 120)
+            }
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+            if !historyStore.entries.isEmpty {
+                Menu {
+                    Menu("Export CSV") {
+                        Button("Last 7 days")  { shareCSV(days: 7) }
+                        Button("Last 14 days") { shareCSV(days: 14) }
+                        Button("Last 30 days") { shareCSV(days: 30) }
+                        Button("All data")     { shareCSV(days: 3650) }
+                    }
+                    Menu("Export PDF Report") {
+                        Button("Last 7 days")  { sharePDF(days: 7) }
+                        Button("Last 14 days") { sharePDF(days: 14) }
+                        Button("Last 30 days") { sharePDF(days: 30) }
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
             }
         }
     }
 
-    private func generateCSV() -> String {
+    // MARK: - Export
+
+    private func shareCSV(days: Int) {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
+        let entries = historyStore.entries.filter { $0.date >= cutoff }
         var csv = "Date,Blood Glucose,Unit,Carbs (g),Dose (units),Notes\n"
         let f = ISO8601DateFormatter()
-        for entry in historyStore.entries {
-            let row = [
-                f.string(from: entry.date),
-                String(entry.currentBG),
-                entry.glucoseUnit.rawValue,
-                String(entry.carbs),
-                String(entry.totalDose),
-                entry.notes.replacingOccurrences(of: ",", with: ";")
-            ].joined(separator: ",")
-            csv += row + "\n"
+        for e in entries {
+            csv += [f.string(from: e.date), String(e.currentBG), e.glucoseUnit.rawValue,
+                    String(e.carbs), String(e.totalDose),
+                    e.notes.replacingOccurrences(of: ",", with: ";")].joined(separator: ",") + "\n"
         }
-        return csv
+        exportItem = csv
+        showExport = true
+    }
+
+    private func sharePDF(days: Int) {
+        let pdfData = PDFReportGenerator(stats: stats, days: days).generate()
+        exportItem = pdfData
+        showExport = true
+    }
+
+    private var exportSheet: some View {
+        Group {
+            if let item = exportItem {
+                ShareSheet(activityItems: [item])
+            }
+        }
     }
 }
+
+// MARK: - History Row
 
 struct HistoryRow: View {
     let entry: DoseEntry
@@ -106,7 +145,7 @@ struct HistoryRow: View {
     }
 }
 
-// MARK: - ShareSheet
+// MARK: - Share Sheet
 
 struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]

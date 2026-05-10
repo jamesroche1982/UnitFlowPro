@@ -13,12 +13,22 @@ struct CalculatorView: View {
                 VStack(spacing: 16) {
                     disclaimerBanner
 
-                    if viewModel.iob > 0.05 {
-                        iobBanner
+                    // Hypo warning — shown above everything else
+                    switch viewModel.hypoStatus {
+                    case .hypo(let bg):
+                        HypoWarningCard(bg: bg, unit: viewModel.settings.glucoseUnit, severe: true)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    case .caution(let bg):
+                        HypoWarningCard(bg: bg, unit: viewModel.settings.glucoseUnit, severe: false)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    case .safe:
+                        EmptyView()
                     }
 
-                    if viewModel.settings.timeSchedulesEnabled, let schedule = viewModel.activeSchedule {
-                        activeScheduleBanner(schedule)
+                    if viewModel.iob > 0.05 { iobBanner }
+
+                    if viewModel.settings.timeSchedulesEnabled, let s = viewModel.activeSchedule {
+                        activeScheduleBanner(s)
                     }
 
                     inputSection
@@ -29,7 +39,7 @@ struct CalculatorView: View {
                     }
 
                     if let calc = viewModel.lastCalculation {
-                        ResultCard(calculation: calc)
+                        ResultCard(calculation: calc, trend: viewModel.trend)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
@@ -37,27 +47,22 @@ struct CalculatorView: View {
             }
             .navigationTitle("Insulin Calculator")
             .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    Button("Done") { focusedField = nil }
-                }
+                ToolbarItem(placement: .keyboard) { Button("Done") { focusedField = nil } }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    if viewModel.lastCalculation != nil {
-                        Button("Reset", action: viewModel.reset)
-                    }
+                    if viewModel.lastCalculation != nil { Button("Reset", action: viewModel.reset) }
                 }
             }
             .animation(.spring(), value: viewModel.lastCalculation != nil)
             .animation(.spring(), value: viewModel.timerActive)
             .animation(.spring(), value: viewModel.iob)
+            .animation(.spring(), value: "\(viewModel.hypoStatus)")
             .sheet(isPresented: $showingPresets) {
-                MealPresetsView(presetStore: viewModel.presetStore) { preset in
-                    viewModel.applyPreset(preset)
-                }
+                MealPresetsView(presetStore: viewModel.presetStore) { viewModel.applyPreset($0) }
             }
         }
     }
 
-    // MARK: - Subviews
+    // MARK: - Banners
 
     private var disclaimerBanner: some View {
         HStack(spacing: 8) {
@@ -65,8 +70,7 @@ struct CalculatorView: View {
             Text("Always confirm doses with your healthcare provider.")
                 .font(.caption).foregroundStyle(.secondary)
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10).frame(maxWidth: .infinity, alignment: .leading)
         .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -81,8 +85,7 @@ struct CalculatorView: View {
             }
             Spacer()
         }
-        .padding(10)
-        .background(.purple.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+        .padding(10).background(.purple.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private func activeScheduleBanner(_ schedule: TimeSchedule) -> some View {
@@ -91,20 +94,30 @@ struct CalculatorView: View {
             Text("Using **\(schedule.name)** schedule — ratio \(Int(schedule.carbRatio))g/u, ISF \(Int(schedule.insulinSensitivityFactor))")
                 .font(.caption).foregroundStyle(.secondary)
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10).frame(maxWidth: .infinity, alignment: .leading)
         .background(.teal.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
     }
 
+    // MARK: - Input Section
+
     private var inputSection: some View {
         VStack(spacing: 14) {
-
-            // BG field
             GroupBox {
                 HStack {
                     TextField("Current level", text: $viewModel.currentBGText)
-                        .keyboardType(.decimalPad).focused($focusedField, equals: .bg).font(.title2)
-                    if HKAvailable {
+                        .keyboardType(.decimalPad)
+                        .focused($focusedField, equals: .bg)
+                        .font(.title2)
+                        .onChange(of: viewModel.currentBGText) { viewModel.onBGChanged() }
+
+                    // Trend arrow from HealthKit
+                    if let trend = viewModel.trend {
+                        Text(trend.arrow.rawValue)
+                            .font(.title3)
+                            .help(trend.arrow.label)
+                    }
+
+                    if viewModel.healthKitAuthorized {
                         Button {
                             focusedField = nil
                             viewModel.fetchLatestBGFromHealthKit()
@@ -115,14 +128,29 @@ struct CalculatorView: View {
                     Text(viewModel.settings.glucoseUnit.rawValue).foregroundStyle(.secondary).font(.subheadline)
                 }
                 .padding(.top, 4)
+
+                // Trend detail row
+                if let trend = viewModel.trend {
+                    HStack {
+                        Text(trend.arrow.label)
+                            .font(.caption).foregroundStyle(.secondary)
+                        if abs(trend.rate) > 1 {
+                            Text(String(format: "(%.1f mg/dL/min)", trend.rate))
+                                .font(.caption2).foregroundStyle(.tertiary)
+                        }
+                        Spacer()
+                        if abs(trend.arrow.doseAdjustment(isf: viewModel.effectiveISF)) > 0.05 {
+                            let adj = trend.arrow.doseAdjustment(isf: viewModel.effectiveISF)
+                            Text(String(format: "%+.2f u trend adjustment", adj))
+                                .font(.caption).foregroundStyle(adj > 0 ? .orange : .blue)
+                        }
+                    }
+                }
             } label: { Text("Blood Glucose") }
 
-            // Correction-only toggle
             Toggle("Correction dose only (no meal)", isOn: $viewModel.correctionOnly)
-                .font(.subheadline)
-                .tint(.blue)
+                .font(.subheadline).tint(.blue)
 
-            // Carbs field (hidden in correction-only mode)
             if !viewModel.correctionOnly {
                 GroupBox {
                     HStack {
@@ -138,13 +166,11 @@ struct CalculatorView: View {
                 } label: { Text("Carbohydrates") }
             }
 
-            // Notes
             GroupBox {
                 TextField("Meal description, etc.", text: $viewModel.notes, axis: .vertical)
                     .focused($focusedField, equals: .notes).lineLimit(2...4).padding(.top, 4)
             } label: { Text("Notes (optional)") }
 
-            // Calculate button
             Button {
                 focusedField = nil
                 withAnimation { viewModel.calculate() }
@@ -158,9 +184,35 @@ struct CalculatorView: View {
             .disabled(!viewModel.canCalculate)
         }
     }
+}
 
-    private var HKAvailable: Bool {
-        viewModel.healthKitAuthorized
+// MARK: - Hypo Warning Card
+
+struct HypoWarningCard: View {
+    let bg: Double
+    let unit: GlucoseUnit
+    let severe: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: severe ? "cross.circle.fill" : "exclamationmark.triangle.fill")
+                    .foregroundStyle(severe ? .red : .orange)
+                    .font(.title3)
+                Text(severe ? "Low Blood Glucose — Do Not Dose" : "Blood Glucose Approaching Low")
+                    .font(.subheadline).fontWeight(.bold)
+                    .foregroundStyle(severe ? .red : .orange)
+            }
+            Text(severe
+                 ? "BG of \(String(format: "%.0f", bg)) \(unit.rawValue) is below 70 mg/dL. Treat the low first: take 15g fast-acting carbs, wait 15 minutes, then recheck before considering insulin."
+                 : "BG of \(String(format: "%.0f", bg)) \(unit.rawValue) is between 70–80 mg/dL. Exercise caution — confirm with your care team before dosing.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background((severe ? Color.red : Color.orange).opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke((severe ? Color.red : Color.orange).opacity(0.3), lineWidth: 1))
     }
 }
 
@@ -168,6 +220,7 @@ struct CalculatorView: View {
 
 struct ResultCard: View {
     let calculation: DoseCalculation
+    let trend: BGTrendReading?
 
     var body: some View {
         VStack(spacing: 16) {
@@ -178,22 +231,27 @@ struct ResultCard: View {
 
             Divider()
 
-            HStack {
-                breakdown(label: "Meal dose", value: calculation.mealDose)
-                Spacer()
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()),
+                                GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                breakdown(label: "Meal", value: calculation.mealDose)
                 breakdown(label: "Correction", value: calculation.correctionDose)
-                Spacer()
-                breakdown(label: "IOB deducted", value: -calculation.iob, color: .purple)
+                if abs(calculation.trendAdjustment) > 0.01 {
+                    breakdown(label: "Trend adj.", value: calculation.trendAdjustment, color: .orange)
+                }
+                breakdown(label: "IOB", value: -calculation.iob, color: .purple)
+            }
+
+            if let trend, trend.arrow != .stable {
+                HStack(spacing: 6) {
+                    Text(trend.arrow.rawValue)
+                    Text("\(trend.arrow.label) — dose adjusted by \(String(format: "%+.2f u", calculation.trendAdjustment)) for trend.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             }
 
             if calculation.iob > 0.05 {
-                Label(String(format: "%.2f u active insulin subtracted to prevent stacking.", calculation.iob), systemImage: "checkmark.shield.fill")
-                    .font(.caption).foregroundStyle(.purple).multilineTextAlignment(.center)
-            }
-
-            if calculation.correctionDose < 0 {
-                Label("BG is below target — correction is negative.", systemImage: "info.circle")
-                    .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                Label(String(format: "%.2f u active insulin subtracted.", calculation.iob), systemImage: "checkmark.shield.fill")
+                    .font(.caption).foregroundStyle(.purple)
             }
         }
         .padding()
@@ -201,10 +259,10 @@ struct ResultCard: View {
     }
 
     private func breakdown(label: String, value: Double, color: Color = .primary) -> some View {
-        VStack {
-            Text(label).font(.caption).foregroundStyle(.secondary)
+        VStack(spacing: 2) {
+            Text(label).font(.caption2).foregroundStyle(.secondary)
             Text(String(format: "%.2f u", value))
-                .font(.subheadline.monospacedDigit())
+                .font(.caption.monospacedDigit())
                 .foregroundStyle(value < 0 ? .red : color)
         }
     }
@@ -232,7 +290,5 @@ struct CountdownCard: View {
         .background(.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
     }
 
-    private var timeString: String {
-        String(format: "%d:%02d", seconds / 60, seconds % 60)
-    }
+    private var timeString: String { String(format: "%d:%02d", seconds / 60, seconds % 60) }
 }

@@ -18,7 +18,7 @@ struct ContentView: View {
             CalculatorView(viewModel: viewModel)
                 .tabItem { Label("Calculator", systemImage: "syringe") }
 
-            HistoryView(historyStore: historyStore)
+            HistoryView(historyStore: historyStore, glucoseUnit: viewModel.settings.glucoseUnit)
                 .tabItem { Label("History", systemImage: "clock") }
 
             SettingsView(viewModel: viewModel)
