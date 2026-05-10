@@ -3,6 +3,7 @@ import Foundation
 struct DoseCalculation {
     let currentBG: Double
     let carbs: Double
+    let iob: Double
     let settings: InsulinSettings
 
     var correctionDose: Double {
@@ -16,11 +17,9 @@ struct DoseCalculation {
         return carbs / settings.carbRatio
     }
 
-    var totalDose: Double {
-        max(0, correctionDose + mealDose)
-    }
+    var rawTotal: Double { correctionDose + mealDose }
 
-    var roundedTotalDose: Double {
-        (totalDose * 2).rounded() / 2  // round to nearest 0.5 unit
-    }
+    var totalDose: Double { max(0, rawTotal - iob) }
+
+    var roundedTotalDose: Double { (totalDose * 2).rounded() / 2 }
 }

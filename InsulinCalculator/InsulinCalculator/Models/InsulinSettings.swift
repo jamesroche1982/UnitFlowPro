@@ -2,18 +2,26 @@ import Foundation
 import SwiftUI
 
 struct InsulinSettings: Codable {
-    var carbRatio: Double        // grams of carbs per 1 unit of insulin
-    var insulinSensitivityFactor: Double  // mg/dL drop per 1 unit of insulin
-    var targetBloodGlucose: Double  // mg/dL
+    var carbRatio: Double
+    var insulinSensitivityFactor: Double
+    var targetBloodGlucose: Double
     var glucoseUnit: GlucoseUnit
     var appColorScheme: AppColorScheme
+    var insulinDuration: Double       // hours, typically 4–6
+    var preMealMinutes: Int           // countdown after calculating
+    var timeSchedulesEnabled: Bool
+    var timeSchedules: [TimeSchedule]
 
     static let `default` = InsulinSettings(
         carbRatio: 15,
         insulinSensitivityFactor: 50,
         targetBloodGlucose: 100,
         glucoseUnit: .mgdL,
-        appColorScheme: .system
+        appColorScheme: .system,
+        insulinDuration: 4,
+        preMealMinutes: 15,
+        timeSchedulesEnabled: false,
+        timeSchedules: TimeSchedule.defaults
     )
 }
 

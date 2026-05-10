@@ -3,677 +3,527 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InsulinCalculator – App Preview</title>
+<title>InsulinCalculator v2 – App Preview</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── Theme tokens ── */
   :root {
-    --bg-page:       #1c1c1e;
-    --bg-screen:     #f2f2f7;
-    --bg-card:       #ffffff;
-    --bg-input:      #ffffff;
-    --bg-list:       #ffffff;
-    --bg-result:     rgba(0,122,255,0.08);
-    --bg-seg:        rgba(118,118,128,0.12);
-    --bg-seg-active: #ffffff;
-    --bg-tabbar:     rgba(248,248,248,0.95);
-    --bg-disclaimer: rgba(255,149,0,0.12);
-    --border:        rgba(60,60,67,0.29);
-    --border-row:    rgba(60,60,67,0.18);
-    --text-primary:  #000000;
-    --text-secondary:#636366;
-    --text-label:    #6c6c70;
-    --text-tertiary: #8e8e93;
-    --text-inactive: #8e8e93;
-    --nav-bg:        #ffffff;
-    --status-bg:     #ffffff;
-    --result-border: rgba(0,122,255,0.2);
+    --bg-page: #1c1c1e; --bg-screen: #f2f2f7; --bg-card: #ffffff;
+    --bg-seg: rgba(118,118,128,0.12); --bg-seg-active: #ffffff;
+    --bg-tabbar: rgba(248,248,248,0.95); --bg-disclaimer: rgba(255,149,0,0.12);
+    --border: rgba(60,60,67,0.29); --border-row: rgba(60,60,67,0.18);
+    --text-primary: #000; --text-secondary: #636366; --text-label: #6c6c70;
+    --text-tertiary: #8e8e93; --nav-bg: #fff; --status-bg: #fff;
   }
   [data-theme="dark"] {
-    --bg-page:       #000000;
-    --bg-screen:     #1c1c1e;
-    --bg-card:       #2c2c2e;
-    --bg-input:      #2c2c2e;
-    --bg-list:       #2c2c2e;
-    --bg-result:     rgba(0,122,255,0.15);
-    --bg-seg:        rgba(118,118,128,0.24);
-    --bg-seg-active: #636366;
-    --bg-tabbar:     rgba(28,28,30,0.95);
-    --bg-disclaimer: rgba(255,149,0,0.18);
-    --border:        rgba(84,84,88,0.6);
-    --border-row:    rgba(84,84,88,0.4);
-    --text-primary:  #ffffff;
-    --text-secondary:#ebebf5cc;
-    --text-label:    #ebebf599;
-    --text-tertiary: #ebebf599;
-    --text-inactive: #636366;
-    --nav-bg:        #1c1c1e;
-    --status-bg:     #1c1c1e;
-    --result-border: rgba(0,122,255,0.3);
+    --bg-page: #000; --bg-screen: #1c1c1e; --bg-card: #2c2c2e;
+    --bg-seg: rgba(118,118,128,0.24); --bg-seg-active: #636366;
+    --bg-tabbar: rgba(28,28,30,0.95); --bg-disclaimer: rgba(255,149,0,0.18);
+    --border: rgba(84,84,88,0.6); --border-row: rgba(84,84,88,0.4);
+    --text-primary: #fff; --text-secondary: rgba(235,235,245,0.8);
+    --text-label: rgba(235,235,245,0.6); --text-tertiary: rgba(235,235,245,0.6);
+    --nav-bg: #1c1c1e; --status-bg: #1c1c1e;
   }
 
   body {
     background: var(--bg-page);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-    padding: 40px 20px;
-    gap: 24px;
-    color: var(--text-primary);
-    transition: background 0.3s;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh; padding: 32px 20px; gap: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    color: var(--text-primary); transition: background 0.3s;
   }
-
-  h1 { color: #f2f2f7; font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  h1 { color: #f2f2f7; font-size: 17px; font-weight: 600; }
   .subtitle { color: #636366; font-size: 13px; }
 
-  /* iPhone shell */
+  /* Tab row for multiple screens */
+  .screens-row {
+    display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; justify-content: center;
+  }
+  .screen-label { color: #8e8e93; font-size: 12px; text-align: center; margin-bottom: 6px; }
+
+  /* Phone shell */
   .phone {
-    width: 393px;
-    height: 852px;
-    background: #000;
-    border-radius: 55px;
-    padding: 12px;
-    box-shadow: 0 0 0 2px #3a3a3c, 0 30px 80px rgba(0,0,0,0.8), inset 0 0 0 2px #1c1c1e;
-    position: relative;
+    width: 340px; height: 736px; background: #000;
+    border-radius: 48px; padding: 10px;
+    box-shadow: 0 0 0 2px #3a3a3c, 0 24px 64px rgba(0,0,0,0.8), inset 0 0 0 2px #1c1c1e;
     flex-shrink: 0;
   }
-
   .screen {
-    width: 100%;
-    height: 100%;
-    background: var(--bg-screen);
-    border-radius: 44px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    transition: background 0.3s;
+    width: 100%; height: 100%; background: var(--bg-screen);
+    border-radius: 39px; overflow: hidden;
+    display: flex; flex-direction: column; transition: background 0.3s;
   }
-
-  /* Status bar */
   .status-bar {
-    background: var(--status-bg);
-    padding: 14px 28px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 54px;
-    flex-shrink: 0;
-    transition: background 0.3s;
+    background: var(--status-bg); padding: 12px 22px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    height: 48px; flex-shrink: 0; transition: background 0.3s;
   }
-  .status-time { font-size: 15px; font-weight: 600; color: var(--text-primary); }
-  .status-icons { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+  .status-time { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
   .status-icons svg path, .status-icons svg rect, .status-icons svg circle { fill: var(--text-primary); }
 
-  /* Nav bar */
   .nav-bar {
-    background: var(--nav-bg);
-    border-bottom: 0.5px solid var(--border);
-    padding: 8px 20px 12px;
-    flex-shrink: 0;
-    transition: background 0.3s;
+    background: var(--nav-bg); border-bottom: 0.5px solid var(--border);
+    padding: 6px 16px 10px; flex-shrink: 0; transition: background 0.3s;
   }
-  .nav-title { font-size: 17px; font-weight: 600; text-align: center; color: var(--text-primary); }
-  .nav-large { font-size: 34px; font-weight: 700; padding: 6px 0 2px; letter-spacing: -0.5px; color: var(--text-primary); }
-  .nav-action { font-size: 17px; color: #007aff; text-align: right; cursor: pointer; }
+  .nav-large { font-size: 28px; font-weight: 700; letter-spacing: -0.4px; color: var(--text-primary); }
+  .nav-inline { font-size: 15px; font-weight: 600; text-align: center; color: var(--text-primary); }
+  .nav-action { font-size: 15px; color: #007aff; }
 
-  /* Scroll content */
   .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scrollbar-width: none;
+    flex: 1; overflow-y: auto; padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 10px; scrollbar-width: none;
   }
   .content::-webkit-scrollbar { display: none; }
 
-  /* Tab bar */
-  .tab-bar {
-    background: var(--bg-tabbar);
-    border-top: 0.5px solid var(--border);
-    display: flex;
-    padding: 8px 0 20px;
-    flex-shrink: 0;
-    backdrop-filter: blur(20px);
-    transition: background 0.3s;
+  /* Banners */
+  .banner {
+    border-radius: 10px; padding: 8px 10px;
+    display: flex; align-items: flex-start; gap: 7px;
   }
-  .tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    padding: 4px 0;
-    transition: opacity 0.15s;
-  }
-  .tab svg { width: 24px; height: 24px; }
-  .tab span { font-size: 10px; font-weight: 500; }
-  .tab.active span { color: #007aff; }
-  .tab.active svg path, .tab.active svg rect, .tab.active svg circle { fill: #007aff; }
-  .tab:not(.active) span { color: #8e8e93; }
-  .tab:not(.active) svg path, .tab:not(.active) svg rect, .tab:not(.active) svg circle { fill: #8e8e93; }
+  .banner-orange { background: var(--bg-disclaimer); }
+  .banner-purple { background: rgba(175,82,222,0.12); }
+  .banner-teal   { background: rgba(48,176,199,0.12); }
+  .banner-green  { background: rgba(52,199,89,0.12); }
+  .banner-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .banner p { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+  .banner .banner-title { font-size: 12px; font-weight: 600; }
+  .banner-title-purple { color: #af52de; }
+  .banner-title-teal   { color: #30b0c7; }
+  .banner-title-green  { color: #34c759; }
 
-  /* GroupBox */
-  .group-box {
-    background: var(--bg-card);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: background 0.3s;
-  }
-  .group-header {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-label);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0 16px 6px;
-  }
-  .group-inner {
-    padding: 12px 16px 14px;
-  }
-  .group-inner label {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    display: block;
-    margin-bottom: 4px;
-  }
+  /* Cards */
+  .card { background: var(--bg-card); border-radius: 11px; overflow: hidden; transition: background 0.3s; }
+  .card-label { font-size: 10px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.4px; padding: 0 2px 4px; }
+  .card-inner { padding: 10px 12px 12px; }
 
-  /* Input */
-  .ios-input {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  /* Inputs */
+  .input-row { display: flex; align-items: center; gap: 6px; }
+  .input-row input {
+    font-size: 22px; font-weight: 300; border: none; outline: none;
+    flex: 1; background: transparent; font-family: inherit; color: var(--text-primary);
   }
-  .ios-input input {
-    font-size: 26px;
-    font-weight: 300;
-    border: none;
-    outline: none;
-    flex: 1;
-    background: transparent;
-    font-family: inherit;
-    color: var(--text-primary);
+  .input-unit { font-size: 12px; color: var(--text-tertiary); flex-shrink: 0; }
+  .input-btn {
+    font-size: 11px; color: #007aff; background: rgba(0,122,255,0.1);
+    border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer;
+    font-family: inherit; white-space: nowrap;
   }
-  .ios-input .unit {
-    font-size: 14px;
-    color: var(--text-tertiary);
-    flex-shrink: 0;
-  }
+  .hk-btn { color: #ff3b30; background: rgba(255,59,48,0.1); }
 
-  /* Disclaimer */
-  .disclaimer {
-    background: var(--bg-disclaimer);
-    border-radius: 10px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .disclaimer .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-  .disclaimer p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+  /* Toggle */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; }
+  .toggle-row span { font-size: 13px; color: var(--text-primary); }
+  .toggle { width: 44px; height: 26px; background: #34c759; border-radius: 13px; position: relative; cursor: pointer; flex-shrink: 0; }
+  .toggle.off { background: rgba(120,120,128,0.32); }
+  .toggle::after { content: ''; position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; background: #fff; border-radius: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: right 0.15s; }
+  .toggle.off::after { right: auto; left: 2px; }
 
   /* Button */
-  .ios-button {
-    background: #007aff;
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    padding: 16px;
-    font-size: 17px;
-    font-weight: 600;
-    width: 100%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-family: inherit;
-    transition: opacity 0.15s;
+  .ios-btn {
+    background: #007aff; color: #fff; border: none; border-radius: 12px;
+    padding: 13px; font-size: 15px; font-weight: 600; width: 100%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 6px; font-family: inherit;
   }
-  .ios-button:active { opacity: 0.7; }
-  .ios-button.disabled { background: rgba(60,60,67,0.18); color: rgba(60,60,67,0.3); cursor: not-allowed; }
 
   /* Result card */
-  .result-card {
-    background: rgba(0,122,255,0.08);
-    border-radius: 16px;
-    padding: 20px 16px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  .result-label { font-size: 14px; color: #636366; font-weight: 500; }
-  .result-dose { font-size: 58px; font-weight: 700; color: #007aff; letter-spacing: -2px; line-height: 1; }
-  .result-dose span { font-size: 22px; font-weight: 400; letter-spacing: 0; }
-  .result-breakdown {
-    display: flex;
-    width: 100%;
-    gap: 8px;
-    border-top: 0.5px solid rgba(0,122,255,0.2);
-    padding-top: 12px;
-  }
-  .breakdown-item {
-    flex: 1;
-    text-align: center;
-  }
-  .breakdown-item .bl { font-size: 11px; color: #8e8e93; }
-  .breakdown-item .bv { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .result-card { background: rgba(0,122,255,0.08); border-radius: 14px; padding: 14px 12px 12px; }
+  .result-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; text-align: center; }
+  .result-dose { font-size: 48px; font-weight: 700; color: #007aff; letter-spacing: -2px; line-height: 1.1; text-align: center; }
+  .result-dose span { font-size: 18px; font-weight: 400; letter-spacing: 0; }
+  .result-breakdown { display: flex; gap: 6px; border-top: 0.5px solid rgba(0,122,255,0.2); padding-top: 10px; margin-top: 10px; }
+  .rb-item { flex: 1; text-align: center; }
+  .rb-label { font-size: 9px; color: var(--text-tertiary); }
+  .rb-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* Countdown */
+  .countdown-card { background: rgba(52,199,89,0.1); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+  .cd-timer { font-size: 24px; font-weight: 700; color: #34c759; font-variant-numeric: tabular-nums; }
+  .cd-label { font-size: 11px; color: var(--text-secondary); }
+  .cd-title { font-size: 13px; font-weight: 600; color: #34c759; }
 
   /* List rows */
-  .list-section { background: var(--bg-list); border-radius: 12px; overflow: hidden; transition: background 0.3s; }
-  .list-row {
-    padding: 11px 16px;
-    border-bottom: 0.5px solid var(--border-row);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+  .list-section { background: var(--bg-card); border-radius: 11px; overflow: hidden; transition: background 0.3s; }
+  .list-row { padding: 9px 12px; border-bottom: 0.5px solid var(--border-row); display: flex; align-items: center; justify-content: space-between; }
   .list-row:last-child { border-bottom: none; }
-  .list-row .row-left { display: flex; flex-direction: column; gap: 2px; }
-  .list-row .row-title { font-size: 16px; color: var(--text-primary); }
-  .list-row .row-sub { font-size: 12px; color: var(--text-tertiary); }
-  .list-row .row-right { display: flex; align-items: center; gap: 6px; }
-  .list-row .row-badge { font-size: 15px; font-weight: 600; color: #007aff; }
-  .list-row .row-chevron { color: var(--text-tertiary); font-size: 14px; }
+  .row-title { font-size: 14px; font-weight: 600; color: #007aff; }
+  .row-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .row-chips { display: flex; gap: 8px; margin-top: 3px; }
+  .chip { font-size: 11px; }
+  .chip-red { color: #ff3b30; }
+  .chip-orange { color: #ff9500; }
+  .row-time { font-size: 10px; color: var(--text-tertiary); text-align: right; }
 
-  /* Tag chip */
-  .chip { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-  .chip-red { background: rgba(255,59,48,0.12); color: #ff3b30; }
-  .chip-orange { background: rgba(255,149,0,0.12); color: #ff9500; }
+  /* Tab bar */
+  .tab-bar { background: var(--bg-tabbar); border-top: 0.5px solid var(--border); display: flex; padding: 6px 0 16px; flex-shrink: 0; transition: background 0.3s; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; padding: 3px 0; }
+  .tab svg { width: 22px; height: 22px; }
+  .tab span { font-size: 9px; font-weight: 500; }
+  .tab.active span { color: #007aff; }
+  .tab.active svg path, .tab.active svg rect, .tab.active svg circle { fill: #007aff; }
+  .tab:not(.active) span { color: var(--text-tertiary); }
+  .tab:not(.active) svg path, .tab:not(.active) svg rect, .tab:not(.active) svg circle { fill: var(--text-tertiary); }
 
-  /* Form section */
-  .form-section { background: var(--bg-list); border-radius: 12px; overflow: hidden; margin-bottom: 0; transition: background 0.3s; }
-  .form-header { font-size: 12px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 16px 6px; }
-  .form-footer { font-size: 12px; color: var(--text-tertiary); padding: 6px 16px 12px; line-height: 1.4; }
-  .form-row {
-    padding: 11px 16px;
-    border-bottom: 0.5px solid var(--border-row);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .form-row:last-child { border-bottom: none; }
-  .form-row .fr-label { font-size: 16px; color: var(--text-primary); }
-  .form-row .fr-value { display: flex; align-items: center; gap: 6px; font-size: 16px; color: #007aff; }
-  .form-row .fr-unit { font-size: 13px; color: var(--text-tertiary); }
-
-  /* Segmented control */
-  .segmented {
-    background: var(--bg-seg);
-    border-radius: 9px;
-    padding: 2px;
-    display: flex;
-    margin: 0 16px 12px;
-    transition: background 0.3s;
-  }
-  .seg-btn {
-    flex: 1;
-    text-align: center;
-    padding: 6px 0;
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--text-primary);
-  }
+  /* Segmented */
+  .segmented { background: var(--bg-seg); border-radius: 8px; padding: 2px; display: flex; transition: background 0.3s; }
+  .seg-btn { flex: 1; text-align: center; padding: 5px 0; font-size: 12px; font-weight: 500; border-radius: 6px; cursor: pointer; color: var(--text-primary); }
   .seg-btn.active { background: var(--bg-seg-active); box-shadow: 0 1px 3px rgba(0,0,0,0.18); font-weight: 600; }
-  .seg-btn:not(.active) { color: var(--text-tertiary); }
 
-  /* Tab switching */
-  .tab-panel { display: none; flex-direction: column; flex: 1; min-height: 0; }
-  .tab-panel.active { display: flex; flex-direction: column; }
+  /* Form */
+  .form-section { background: var(--bg-card); border-radius: 11px; overflow: hidden; transition: background 0.3s; }
+  .form-header { font-size: 10px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.4px; padding: 12px 12px 5px; }
+  .form-footer { font-size: 10px; color: var(--text-tertiary); padding: 4px 12px 10px; line-height: 1.4; }
+  .form-row { padding: 9px 12px; border-bottom: 0.5px solid var(--border-row); display: flex; align-items: center; justify-content: space-between; }
+  .form-row:last-child { border-bottom: none; }
+  .fr-label { font-size: 14px; color: var(--text-primary); }
+  .fr-value { font-size: 14px; color: #007aff; display: flex; align-items: center; gap: 4px; }
+  .fr-unit { font-size: 11px; color: var(--text-tertiary); }
+  .fr-chevron { font-size: 12px; color: var(--text-tertiary); margin-left: 4px; }
 
-  /* Empty state */
-  .empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #8e8e93;
-    padding: 40px;
-    text-align: center;
-  }
-  .empty-state .empty-icon { font-size: 48px; }
-  .empty-state .empty-title { font-size: 20px; font-weight: 600; color: #3c3c43; }
-  .empty-state .empty-desc { font-size: 14px; line-height: 1.5; }
+  /* Chart mockup */
+  .chart-area { background: var(--bg-card); border-radius: 11px; padding: 12px; transition: background 0.3s; }
+  .chart-title { font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px; }
+  .chart-svg { width: 100%; }
 
-  /* Monospace */
-  .mono { font-variant-numeric: tabular-nums; }
+  /* Theme toggle area */
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .ctrl-btn { background: #2c2c2e; color: #f2f2f7; border: none; border-radius: 8px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .ctrl-btn.active { background: #007aff; }
 </style>
 </head>
 <body>
 
-<h1>InsulinCalculator — App Preview</h1>
-<p class="subtitle">Click the tabs to switch screens</p>
+<h1>InsulinCalculator v2 — App Preview</h1>
+<p class="subtitle">All new features — click Theme to switch dark/light</p>
 
-<div class="phone">
-  <div class="screen">
-
-    <!-- Status Bar -->
-    <div class="status-bar">
-      <span class="status-time">9:41</span>
-      <div class="status-icons">
-        <svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#000"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#000"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#000" opacity="0.3"/></svg>
-        <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.4C10.5 2.4 12.7 3.5 14.2 5.2L15.5 3.9C13.6 1.8 11 .6 8 .6 5 .6 2.4 1.8.5 3.9L1.8 5.2C3.3 3.5 5.5 2.4 8 2.4Z" fill="#000"/><path d="M8 5.2C9.8 5.2 11.4 5.9 12.6 7.1L13.9 5.8C12.3 4.3 10.3 3.4 8 3.4 5.7 3.4 3.7 4.3 2.1 5.8L3.4 7.1C4.6 5.9 6.2 5.2 8 5.2Z" fill="#000"/><circle cx="8" cy="10" r="2" fill="#000"/></svg>
-        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="22" height="10" rx="3" stroke="#000" stroke-width="1" fill="none" opacity="0.35"/><rect x="23" y="4" width="2" height="4" rx="1" fill="#000" opacity="0.4"/><rect x="1" y="2" width="18" height="8" rx="2" fill="#000"/></svg>
-      </div>
-    </div>
-
-    <!-- ========== CALCULATOR TAB ========== -->
-    <div class="tab-panel active" id="panel-calc">
-      <div class="nav-bar">
-        <div class="nav-large">Insulin Calculator</div>
-      </div>
-
-      <div class="content" id="calc-content">
-        <div class="disclaimer">
-          <span class="icon">⚠️</span>
-          <p>Always confirm doses with your healthcare provider.</p>
-        </div>
-
-        <div>
-          <div class="group-header" style="padding:0 4px 6px">Blood Glucose</div>
-          <div class="group-box">
-            <div class="group-inner">
-              <div class="ios-input">
-                <input type="number" id="bg-input" placeholder="Current level" value="180" oninput="updateCalc()">
-                <span class="unit">mg/dL</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="group-header" style="padding:0 4px 6px">Carbohydrates</div>
-          <div class="group-box">
-            <div class="group-inner">
-              <div class="ios-input">
-                <input type="number" id="carbs-input" placeholder="0" value="45" oninput="updateCalc()">
-                <span class="unit">grams</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="group-header" style="padding:0 4px 6px">Notes (optional)</div>
-          <div class="group-box">
-            <div class="group-inner">
-              <input type="text" id="notes-input" placeholder="Meal description, etc."
-                style="font-size:16px;border:none;outline:none;width:100%;background:transparent;font-family:inherit;">
-            </div>
-          </div>
-        </div>
-
-        <button class="ios-button" onclick="calculateDose()">
-          <span>ƒ</span> Calculate Dose
-        </button>
-
-        <div class="result-card" id="result-card" style="display:none">
-          <div class="result-label">Recommended Dose</div>
-          <div class="result-dose" id="result-dose">5.0 <span>units</span></div>
-          <div class="result-breakdown">
-            <div class="breakdown-item">
-              <div class="bl">Meal dose</div>
-              <div class="bv mono" id="meal-dose">3.00 u</div>
-            </div>
-            <div style="width:0.5px;background:rgba(0,122,255,0.2);"></div>
-            <div class="breakdown-item">
-              <div class="bl">Correction</div>
-              <div class="bv mono" id="correction-dose">1.60 u</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== HISTORY TAB ========== -->
-    <div class="tab-panel" id="panel-history">
-      <div class="nav-bar">
-        <div class="nav-large">Dose History</div>
-      </div>
-      <div class="content">
-        <div class="list-section">
-          <div class="list-row">
-            <div class="row-left">
-              <div class="row-title" style="font-weight:600;color:#007aff">5.0 units</div>
-              <div style="display:flex;gap:10px;margin-top:3px">
-                <span style="font-size:13px;color:#ff3b30">🩸 180 mg/dL</span>
-                <span style="font-size:13px;color:#ff9500">🍴 45g carbs</span>
-              </div>
-            </div>
-            <div class="row-right">
-              <span class="row-sub" style="font-size:11px">Today, 9:41 AM</span>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="row-left">
-              <div class="row-title" style="font-weight:600;color:#007aff">3.5 units</div>
-              <div style="display:flex;gap:10px;margin-top:3px">
-                <span style="font-size:13px;color:#ff3b30">🩸 145 mg/dL</span>
-                <span style="font-size:13px;color:#ff9500">🍴 40g carbs</span>
-              </div>
-              <div style="font-size:11px;color:#8e8e93;margin-top:2px">Pasta dinner</div>
-            </div>
-            <div class="row-right">
-              <span class="row-sub" style="font-size:11px">Yesterday, 7:02 PM</span>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="row-left">
-              <div class="row-title" style="font-weight:600;color:#007aff">2.0 units</div>
-              <div style="display:flex;gap:10px;margin-top:3px">
-                <span style="font-size:13px;color:#ff3b30">🩸 120 mg/dL</span>
-                <span style="font-size:13px;color:#ff9500">🍴 30g carbs</span>
-              </div>
-            </div>
-            <div class="row-right">
-              <span class="row-sub" style="font-size:11px">Yesterday, 12:15 PM</span>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="row-left">
-              <div class="row-title" style="font-weight:600;color:#007aff">4.5 units</div>
-              <div style="display:flex;gap:10px;margin-top:3px">
-                <span style="font-size:13px;color:#ff3b30">🩸 210 mg/dL</span>
-                <span style="font-size:13px;color:#ff9500">🍴 50g carbs</span>
-              </div>
-              <div style="font-size:11px;color:#8e8e93;margin-top:2px">Birthday cake 🎂</div>
-            </div>
-            <div class="row-right">
-              <span class="row-sub" style="font-size:11px">May 8, 6:30 PM</span>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="row-left">
-              <div class="row-title" style="font-weight:600;color:#007aff">1.5 units</div>
-              <div style="display:flex;gap:10px;margin-top:3px">
-                <span style="font-size:13px;color:#ff3b30">🩸 105 mg/dL</span>
-                <span style="font-size:13px;color:#ff9500">🍴 22g carbs</span>
-              </div>
-            </div>
-            <div class="row-right">
-              <span class="row-sub" style="font-size:11px">May 8, 8:00 AM</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== SETTINGS TAB ========== -->
-    <div class="tab-panel" id="panel-settings">
-      <div class="nav-bar" style="display:flex;align-items:center;justify-content:space-between">
-        <div style="width:50px"></div>
-        <div class="nav-title">Settings</div>
-        <div class="nav-action" style="width:50px">Save</div>
-      </div>
-
-      <div class="content">
-        <div>
-          <div class="form-header">Units</div>
-          <div class="segmented">
-            <div class="seg-btn active" onclick="setSeg(this)">mg/dL</div>
-            <div class="seg-btn" onclick="setSeg(this)">mmol/L</div>
-          </div>
-        </div>
-
-        <div>
-          <div class="form-header">Appearance</div>
-          <div class="segmented" id="theme-seg">
-            <div class="seg-btn active" onclick="setTheme(this,'system')">◐ System</div>
-            <div class="seg-btn" onclick="setTheme(this,'light')">☀ Light</div>
-            <div class="seg-btn" onclick="setTheme(this,'dark')">☾ Dark</div>
-          </div>
-        </div>
-
-        <div>
-          <div class="form-header">Personal Settings</div>
-          <div class="form-section">
-            <div class="form-row">
-              <span class="fr-label">Carb Ratio</span>
-              <div class="fr-value">
-                <span>15</span>
-                <span class="fr-unit">g / unit</span>
-              </div>
-            </div>
-            <div class="form-row">
-              <span class="fr-label">Sensitivity Factor (ISF)</span>
-              <div class="fr-value">
-                <span>50</span>
-                <span class="fr-unit">mg/dL / unit</span>
-              </div>
-            </div>
-            <div class="form-row">
-              <span class="fr-label">Target Blood Glucose</span>
-              <div class="fr-value">
-                <span>100</span>
-                <span class="fr-unit">mg/dL</span>
-              </div>
-            </div>
-          </div>
-          <div class="form-footer">Set by your endocrinologist. Consult your doctor before changing these values.</div>
-        </div>
-
-        <div>
-          <div class="form-header">About</div>
-          <div class="form-section">
-            <div class="form-row">
-              <span class="fr-label">Formula</span>
-              <span style="font-size:11px;color:#8e8e93;font-family:monospace;text-align:right;max-width:180px">(BG − Target) ÷ ISF + Carbs ÷ Ratio</span>
-            </div>
-            <div class="form-row">
-              <span class="fr-label">Rounding</span>
-              <span class="fr-unit">Nearest 0.5 unit</span>
-            </div>
-            <div class="form-row">
-              <span class="fr-label">Version</span>
-              <span class="fr-unit">1.0</span>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="form-header">Medical Disclaimer</div>
-          <div class="form-section">
-            <div class="form-row" style="display:block">
-              <p style="font-size:12px;color:#8e8e93;line-height:1.5">
-                This app is a calculation aid only. It does not replace professional medical advice. Always verify doses with your healthcare team. Never adjust insulin based solely on this calculator without medical guidance.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab Bar -->
-    <div class="tab-bar">
-      <div class="tab active" id="tab-calc" onclick="switchTab('calc')">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8.5 3 5.5 5 4 8h16c-1.5-3-4.5-5-8-5z" fill="currentColor"/><rect x="3" y="9" width="18" height="2" rx="1" fill="currentColor"/><rect x="3" y="13" width="18" height="2" rx="1" fill="currentColor"/><path d="M12 21c3.5 0 6.5-2 8-5H4c1.5 3 4.5 5 8 5z" fill="currentColor"/></svg>
-        <span>Calculator</span>
-      </div>
-      <div class="tab" id="tab-history" onclick="switchTab('history')">
-        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm1-13h-2v6l5 3 1-1.7-4-2.3z" fill="currentColor"/></svg>
-        <span>History</span>
-      </div>
-      <div class="tab" id="tab-settings" onclick="switchTab('settings')">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.47.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.27.41.49.41h3.84c.24 0 .44-.17.47-.41l.36-2.54a7.37 7.37 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z" fill="currentColor"/></svg>
-        <span>Settings</span>
-      </div>
-    </div>
-
-  </div>
+<div class="controls">
+  <button class="ctrl-btn active" onclick="setTheme('light',this)">☀ Light</button>
+  <button class="ctrl-btn" onclick="setTheme('dark',this)">☾ Dark</button>
 </div>
 
+<div class="screens-row">
+
+  <!-- ── CALCULATOR ── -->
+  <div>
+    <div class="screen-label">Calculator</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">
+            <svg width="16" height="11" viewBox="0 0 16 11"><rect x="0" y="2" width="3" height="9" rx="1"/><rect x="4.5" y="1" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="11" rx="1" opacity="0.3"/></svg>
+            <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 2.2C9.8 2.2 11.8 3.2 13.1 4.8L14.3 3.6C12.6 1.7 10.2.6 7.5.6 4.8.6 2.4 1.7.7 3.6L1.9 4.8C3.2 3.2 5.2 2.2 7.5 2.2Z"/><path d="M7.5 4.8C9.1 4.8 10.5 5.4 11.6 6.5L12.8 5.3C11.3 3.9 9.5 3 7.5 3 5.5 3 3.7 3.9 2.2 5.3L3.4 6.5C4.5 5.4 5.9 4.8 7.5 4.8Z"/><circle cx="7.5" cy="9.5" r="1.8"/></svg>
+            <svg width="23" height="11" viewBox="0 0 23 11"><rect x="0" y="1" width="20" height="9" rx="2.5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/><rect x="21" y="3.5" width="2" height="4" rx="1"/><rect x="1" y="2" width="16" height="7" rx="1.5"/></svg>
+          </div>
+        </div>
+        <div class="nav-bar"><div class="nav-large">Insulin Calculator</div></div>
+        <div class="content">
+
+          <!-- Disclaimer -->
+          <div class="banner banner-orange">
+            <span class="banner-icon">⚠️</span>
+            <p>Always confirm doses with your healthcare provider.</p>
+          </div>
+
+          <!-- IOB Banner -->
+          <div class="banner banner-purple">
+            <span class="banner-icon">⏱</span>
+            <div>
+              <div class="banner-title banner-title-purple">Active insulin: 1.80 u (IOB)</div>
+              <p>This will be subtracted from your next dose.</p>
+            </div>
+          </div>
+
+          <!-- Active Schedule Banner -->
+          <div class="banner banner-teal">
+            <span class="banner-icon">🕐</span>
+            <p><span style="color:#30b0c7;font-weight:600">Morning</span> schedule — ratio 12g/u, ISF 40</p>
+          </div>
+
+          <!-- BG -->
+          <div>
+            <div class="card-label">Blood Glucose</div>
+            <div class="card"><div class="card-inner">
+              <div class="input-row">
+                <input type="number" value="210" id="bg" oninput="recalc()">
+                <button class="input-btn hk-btn">♥ Health</button>
+                <span class="input-unit">mg/dL</span>
+              </div>
+            </div></div>
+          </div>
+
+          <!-- Correction only -->
+          <div class="toggle-row">
+            <span>Correction dose only (no meal)</span>
+            <div class="toggle off" id="corr-toggle" onclick="toggleCorr(this)"></div>
+          </div>
+
+          <!-- Carbs -->
+          <div id="carbs-section">
+            <div class="card-label">Carbohydrates</div>
+            <div class="card"><div class="card-inner">
+              <div class="input-row">
+                <input type="number" value="45" id="carbs" oninput="recalc()">
+                <button class="input-btn" onclick="">🍴 Presets</button>
+                <span class="input-unit">grams</span>
+              </div>
+            </div></div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <div class="card-label">Notes (optional)</div>
+            <div class="card"><div class="card-inner">
+              <input type="text" value="Breakfast" style="font-size:14px;border:none;outline:none;width:100%;background:transparent;font-family:inherit;color:var(--text-primary)">
+            </div></div>
+          </div>
+
+          <button class="ios-btn" onclick="recalc()">ƒ Calculate Dose</button>
+
+          <!-- Countdown -->
+          <div class="countdown-card">
+            <span style="font-size:20px">⏱</span>
+            <div>
+              <div class="cd-title">Inject now — eat in</div>
+              <div class="cd-timer" id="cd-display">14:32</div>
+            </div>
+            <div style="flex:1"></div>
+            <span style="color:var(--text-tertiary);font-size:18px;cursor:pointer">✕</span>
+          </div>
+
+          <!-- Result -->
+          <div class="result-card">
+            <div class="result-label">Recommended Dose</div>
+            <div class="result-dose" id="r-dose">4.5 <span>units</span></div>
+            <div class="result-breakdown">
+              <div class="rb-item">
+                <div class="rb-label">Meal dose</div>
+                <div class="rb-val" id="r-meal">3.75 u</div>
+              </div>
+              <div style="width:0.5px;background:rgba(0,122,255,0.2)"></div>
+              <div class="rb-item">
+                <div class="rb-label">Correction</div>
+                <div class="rb-val" id="r-corr">2.75 u</div>
+              </div>
+              <div style="width:0.5px;background:rgba(0,122,255,0.2)"></div>
+              <div class="rb-item">
+                <div class="rb-label">IOB deducted</div>
+                <div class="rb-val" style="color:#af52de">−1.80 u</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tab-bar">
+          <div class="tab active">
+            <svg viewBox="0 0 24 24"><path d="M12 3C8.5 3 5.5 5 4 8h16c-1.5-3-4.5-5-8-5z"/><rect x="3" y="9" width="18" height="2" rx="1"/><rect x="3" y="13" width="18" height="2" rx="1"/><path d="M12 21c3.5 0 6.5-2 8-5H4c1.5 3 4.5 5 8 5z"/></svg>
+            <span>Calculator</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg>
+            <span>History</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.47.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.27.41.49.41h3.84c.24 0 .44-.17.47-.41l.36-2.54a7.37 7.37 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg>
+            <span>Settings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HISTORY + CHART ── -->
+  <div>
+    <div class="screen-label">History &amp; Chart</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">
+            <svg width="16" height="11" viewBox="0 0 16 11"><rect x="0" y="2" width="3" height="9" rx="1"/><rect x="4.5" y="1" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="11" rx="1" opacity="0.3"/></svg>
+            <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 2.2C9.8 2.2 11.8 3.2 13.1 4.8L14.3 3.6C12.6 1.7 10.2.6 7.5.6 4.8.6 2.4 1.7.7 3.6L1.9 4.8C3.2 3.2 5.2 2.2 7.5 2.2Z"/><path d="M7.5 4.8C9.1 4.8 10.5 5.4 11.6 6.5L12.8 5.3C11.3 3.9 9.5 3 7.5 3 5.5 3 3.7 3.9 2.2 5.3L3.4 6.5C4.5 5.4 5.9 4.8 7.5 4.8Z"/><circle cx="7.5" cy="9.5" r="1.8"/></svg>
+            <svg width="23" height="11" viewBox="0 0 23 11"><rect x="0" y="1" width="20" height="9" rx="2.5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/><rect x="21" y="3.5" width="2" height="4" rx="1"/><rect x="1" y="2" width="16" height="7" rx="1.5"/></svg>
+          </div>
+        </div>
+        <div class="nav-bar" style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px;color:#007aff">📊</span>
+          <div class="nav-inline">Dose History</div>
+          <span style="font-size:13px;color:#007aff">⬆ Export</span>
+        </div>
+        <div class="content">
+          <!-- Range picker -->
+          <div class="segmented" style="margin:0">
+            <div class="seg-btn active">7d</div>
+            <div class="seg-btn" onclick="setSeg(this)">14d</div>
+            <div class="seg-btn" onclick="setSeg(this)">30d</div>
+          </div>
+
+          <!-- Dose chart -->
+          <div class="chart-area">
+            <div class="chart-title">Dose (units)</div>
+            <svg class="chart-svg" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="doseGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#007aff" stop-opacity="0.3"/><stop offset="100%" stop-color="#007aff" stop-opacity="0"/></linearGradient></defs>
+              <path d="M20,90 L65,70 L110,55 L155,80 L200,45 L245,60 L290,35" stroke="#007aff" stroke-width="2" fill="none" stroke-linejoin="round"/>
+              <path d="M20,90 L65,70 L110,55 L155,80 L200,45 L245,60 L290,35 L290,110 L20,110Z" fill="url(#doseGrad)"/>
+              <circle cx="20" cy="90" r="3" fill="#007aff"/><circle cx="65" cy="70" r="3" fill="#007aff"/><circle cx="110" cy="55" r="3" fill="#007aff"/><circle cx="155" cy="80" r="3" fill="#007aff"/><circle cx="200" cy="45" r="3" fill="#007aff"/><circle cx="245" cy="60" r="3" fill="#007aff"/><circle cx="290" cy="35" r="3" fill="#007aff"/>
+              <text x="20" y="107" font-size="8" fill="#8e8e93">May 3</text>
+              <text x="245" y="107" font-size="8" fill="#8e8e93">May 9</text>
+              <text x="0" y="93" font-size="8" fill="#8e8e93">2</text>
+              <text x="0" y="58" font-size="8" fill="#8e8e93">4</text>
+              <text x="0" y="38" font-size="8" fill="#8e8e93">5</text>
+            </svg>
+          </div>
+
+          <!-- BG chart -->
+          <div class="chart-area">
+            <div class="chart-title">Blood Glucose (mg/dL)</div>
+            <svg class="chart-svg" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff3b30" stop-opacity="0.25"/><stop offset="100%" stop-color="#ff3b30" stop-opacity="0"/></linearGradient></defs>
+              <path d="M20,30 L65,55 L110,40 L155,65 L200,35 L245,50 L290,25" stroke="#ff3b30" stroke-width="2" fill="none" stroke-linejoin="round" stroke-dasharray="0"/>
+              <path d="M20,30 L65,55 L110,40 L155,65 L200,35 L245,50 L290,25 L290,90 L20,90Z" fill="url(#bgGrad)"/>
+              <circle cx="20" cy="30" r="3" fill="#ff3b30"/><circle cx="65" cy="55" r="3" fill="#ff3b30"/><circle cx="110" cy="40" r="3" fill="#ff3b30"/><circle cx="155" cy="65" r="3" fill="#ff3b30"/><circle cx="200" cy="35" r="3" fill="#ff3b30"/><circle cx="245" cy="50" r="3" fill="#ff3b30"/><circle cx="290" cy="25" r="3" fill="#ff3b30"/>
+              <line x1="0" y1="72" x2="300" y2="72" stroke="#34c759" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+              <text x="2" y="70" font-size="7" fill="#34c759">Target</text>
+              <text x="0" y="33" font-size="8" fill="#8e8e93">210</text>
+              <text x="0" y="68" font-size="8" fill="#8e8e93">120</text>
+            </svg>
+          </div>
+
+          <!-- History list -->
+          <div class="list-section">
+            <div class="list-row">
+              <div><div class="row-title">5.0 u</div><div class="row-chips"><span class="chip chip-red">🩸 210 mg/dL</span><span class="chip chip-orange">🍴 45g</span></div></div>
+              <div class="row-time">Today<br>9:41 AM</div>
+            </div>
+            <div class="list-row">
+              <div><div class="row-title">3.5 u</div><div class="row-chips"><span class="chip chip-red">🩸 145 mg/dL</span><span class="chip chip-orange">🍴 40g</span></div><div class="row-sub">Pasta dinner</div></div>
+              <div class="row-time">Yesterday<br>7:02 PM</div>
+            </div>
+            <div class="list-row">
+              <div><div class="row-title">2.0 u</div><div class="row-chips"><span class="chip chip-red">🩸 120 mg/dL</span><span class="chip chip-orange">🍴 30g</span></div></div>
+              <div class="row-time">Yesterday<br>12:15 PM</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><svg viewBox="0 0 24 24"><path d="M12 3C8.5 3 5.5 5 4 8h16c-1.5-3-4.5-5-8-5z"/><rect x="3" y="9" width="18" height="2" rx="1"/><rect x="3" y="13" width="18" height="2" rx="1"/><path d="M12 21c3.5 0 6.5-2 8-5H4c1.5 3 4.5 5 8 5z"/></svg><span>Calculator</span></div>
+          <div class="tab active"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg><span>History</span></div>
+          <div class="tab"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.47.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.27.41.49.41h3.84c.24 0 .44-.17.47-.41l.36-2.54a7.37 7.37 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg><span>Settings</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div>
+    <div class="screen-label">Settings</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><svg width="16" height="11" viewBox="0 0 16 11"><rect x="0" y="2" width="3" height="9" rx="1"/><rect x="4.5" y="1" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="11" rx="1" opacity="0.3"/></svg><svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 2.2C9.8 2.2 11.8 3.2 13.1 4.8L14.3 3.6C12.6 1.7 10.2.6 7.5.6 4.8.6 2.4 1.7.7 3.6L1.9 4.8C3.2 3.2 5.2 2.2 7.5 2.2Z"/><path d="M7.5 4.8C9.1 4.8 10.5 5.4 11.6 6.5L12.8 5.3C11.3 3.9 9.5 3 7.5 3 5.5 3 3.7 3.9 2.2 5.3L3.4 6.5C4.5 5.4 5.9 4.8 7.5 4.8Z"/><circle cx="7.5" cy="9.5" r="1.8"/></svg><svg width="23" height="11" viewBox="0 0 23 11"><rect x="0" y="1" width="20" height="9" rx="2.5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/><rect x="21" y="3.5" width="2" height="4" rx="1"/><rect x="1" y="2" width="16" height="7" rx="1.5"/></svg></div></div>
+        <div class="nav-bar" style="display:flex;align-items:center;justify-content:space-between"><div style="width:40px"></div><div class="nav-inline">Settings</div><div class="nav-action" style="width:40px;text-align:right">Save</div></div>
+        <div class="content">
+
+          <div><div class="form-header">Units</div>
+          <div class="form-section"><div class="form-row"><div style="flex:1"><div class="segmented"><div class="seg-btn active" onclick="setSeg(this)">mg/dL</div><div class="seg-btn" onclick="setSeg(this)">mmol/L</div></div></div></div></div></div>
+
+          <div><div class="form-header">Appearance</div>
+          <div class="form-section"><div class="form-row"><div style="flex:1"><div class="segmented" id="theme-seg"><div class="seg-btn active" onclick="setThemeBtn(this,'system')">◐ System</div><div class="seg-btn" onclick="setThemeBtn(this,'light')">☀ Light</div><div class="seg-btn" onclick="setThemeBtn(this,'dark')">☾ Dark</div></div></div></div></div></div>
+
+          <div><div class="form-header">Personal Settings</div>
+          <div class="form-section">
+            <div class="form-row"><span class="fr-label">Carb Ratio</span><div class="fr-value">12 <span class="fr-unit">g / unit</span></div></div>
+            <div class="form-row"><span class="fr-label">Sensitivity (ISF)</span><div class="fr-value">40 <span class="fr-unit">mg/dL / unit</span></div></div>
+            <div class="form-row"><span class="fr-label">Target BG</span><div class="fr-value">100 <span class="fr-unit">mg/dL</span></div></div>
+          </div>
+          <div class="form-footer">Set by your endocrinologist.</div></div>
+
+          <div><div class="form-header">Insulin on Board (IOB)</div>
+          <div class="form-section">
+            <div class="form-row"><span class="fr-label">Insulin Duration</span><div class="fr-value">4 <span class="fr-unit">hours</span></div></div>
+          </div>
+          <div class="form-footer">How long insulin stays active. Typical range 4–6 hrs.</div></div>
+
+          <div><div class="form-header">Pre-Meal Timer</div>
+          <div class="form-section">
+            <div class="form-row"><span class="fr-label">Pre-Meal Delay</span><div class="fr-value">15 <span class="fr-unit">minutes</span></div></div>
+          </div>
+          <div class="form-footer">Countdown starts after calculating. Set to 0 to disable.</div></div>
+
+          <div><div class="form-header">Time Schedules</div>
+          <div class="form-section">
+            <div class="form-row"><span class="fr-label">Use Time-Based Ratios</span><div class="toggle" onclick="this.classList.toggle('off')"></div></div>
+            <div class="form-row"><span class="fr-label">Manage Schedules (4)</span><span class="fr-chevron">›</span></div>
+            <div class="form-row"><span class="fr-label">Active Now</span><div class="fr-value" style="color:#30b0c7">Morning</div></div>
+          </div>
+          <div class="form-footer">Override ratios by time of day.</div></div>
+
+          <div><div class="form-header">Apple Health</div>
+          <div class="form-section">
+            <div class="form-row"><span class="fr-label" style="color:#ff3b30">♥ Connected to Apple Health</span></div>
+          </div>
+          <div class="form-footer">Reads latest BG to pre-fill the calculator.</div></div>
+
+          <div><div class="form-header">About</div>
+          <div class="form-section">
+            <div class="form-row"><span class="fr-label">Formula</span><span style="font-size:9px;color:var(--text-tertiary);font-family:monospace">(BG−Target)÷ISF + Carbs÷Ratio − IOB</span></div>
+            <div class="form-row"><span class="fr-label">Version</span><span class="fr-unit">2.0</span></div>
+          </div></div>
+
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><svg viewBox="0 0 24 24"><path d="M12 3C8.5 3 5.5 5 4 8h16c-1.5-3-4.5-5-8-5z"/><rect x="3" y="9" width="18" height="2" rx="1"/><rect x="3" y="13" width="18" height="2" rx="1"/><path d="M12 21c3.5 0 6.5-2 8-5H4c1.5 3 4.5 5 8 5z"/></svg><span>Calculator</span></div>
+          <div class="tab"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg><span>History</span></div>
+          <div class="tab active"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.47.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.27.41.49.41h3.84c.24 0 .44-.17.47-.41l.36-2.54a7.37 7.37 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg><span>Settings</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end screens-row -->
+
 <script>
-  const ISF = 50, TARGET = 100, CARB_RATIO = 15;
+const ISF=40, TARGET=100, CARB_RATIO=12, IOB=1.80;
+let corrOnly = false;
 
-  function switchTab(name) {
-    ['calc','history','settings'].forEach(t => {
-      document.getElementById('panel-'+t).classList.toggle('active', t === name);
-      document.getElementById('tab-'+t).classList.toggle('active', t === name);
-    });
-  }
+function recalc() {
+  const bg = parseFloat(document.getElementById('bg').value) || 0;
+  const carbs = corrOnly ? 0 : (parseFloat(document.getElementById('carbs').value) || 0);
+  const corr = (bg - TARGET) / ISF;
+  const meal = carbs / CARB_RATIO;
+  const total = Math.max(0, corr + meal - IOB);
+  const rounded = Math.round(total * 2) / 2;
+  document.getElementById('r-dose').innerHTML = rounded.toFixed(1) + ' <span>units</span>';
+  document.getElementById('r-meal').textContent = meal.toFixed(2) + ' u';
+  document.getElementById('r-corr').textContent = corr.toFixed(2) + ' u';
+}
 
-  function setSeg(el) {
-    el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-  }
+function toggleCorr(el) {
+  corrOnly = !corrOnly;
+  el.classList.toggle('off', !corrOnly);
+  document.getElementById('carbs-section').style.display = corrOnly ? 'none' : '';
+  recalc();
+}
 
-  function setTheme(el, mode) {
-    el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    const root = document.documentElement;
-    if (mode === 'dark') {
-      root.setAttribute('data-theme', 'dark');
-    } else if (mode === 'light') {
-      root.removeAttribute('data-theme');
-    } else {
-      // system: use prefers-color-scheme
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        root.setAttribute('data-theme', 'dark');
-      } else {
-        root.removeAttribute('data-theme');
-      }
-    }
-  }
+function setSeg(el) {
+  el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
 
-  function updateCalc() {
-    document.getElementById('result-card').style.display = 'none';
-  }
+function setTheme(mode, btn) {
+  document.querySelectorAll('.controls .ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.documentElement[mode==='dark' ? 'setAttribute' : 'removeAttribute']('data-theme', 'dark');
+}
 
-  function calculateDose() {
-    const bg = parseFloat(document.getElementById('bg-input').value);
-    const carbs = parseFloat(document.getElementById('carbs-input').value) || 0;
-    if (isNaN(bg)) return;
+function setThemeBtn(el, mode) {
+  el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.documentElement[mode==='dark' ? 'setAttribute' : 'removeAttribute']('data-theme', 'dark');
+  document.querySelectorAll('.controls .ctrl-btn').forEach((b,i) => b.classList.toggle('active', (mode==='dark'&&i===1)||(mode!=='dark'&&i===0)));
+}
 
-    const correction = (bg - TARGET) / ISF;
-    const meal = carbs / CARB_RATIO;
-    const total = Math.max(0, correction + meal);
-    const rounded = Math.round(total * 2) / 2;
-
-    document.getElementById('result-dose').innerHTML = rounded.toFixed(1) + ' <span>units</span>';
-    document.getElementById('meal-dose').textContent = meal.toFixed(2) + ' u';
-    document.getElementById('correction-dose').innerHTML =
-      '<span style="color:' + (correction < 0 ? '#ff3b30' : 'inherit') + '">' + correction.toFixed(2) + ' u</span>';
-
-    const card = document.getElementById('result-card');
-    card.style.display = 'flex';
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  // Show initial result
-  calculateDose();
+recalc();
 </script>
 </body>
 </html>
