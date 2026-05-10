@@ -18,6 +18,16 @@ struct SettingsView: View {
                     Text("Units")
                 }
 
+                Section("Appearance") {
+                    Picker("Color Scheme", selection: $viewModel.settings.appColorScheme) {
+                        ForEach(AppColorScheme.allCases) { scheme in
+                            Label(scheme.rawValue, systemImage: scheme.icon).tag(scheme)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowSeparator(.hidden)
+                }
+
                 Section {
                     LabeledContent("Carb Ratio") {
                         HStack {
